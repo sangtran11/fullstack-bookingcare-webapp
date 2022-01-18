@@ -10,23 +10,49 @@ let getHomePage = async (req, res) => {
   }
 };
 
-let getCRUD = (req, res) => {
+let onRenderCrudListPage = (req, res) => {
   return res.render("crud.ejs");
 };
 
-let postCRUD = async (req, res) => {
-  let msg = await CRUDservice.createNewUser(req.body);
-  return res.send(msg);
+let onAddNewCrud = async (req, res) => {
+  await CRUDservice.createNewUser(req.body);
+  return res.redirect("/");
 };
 
-let displayGetCRUD = async (req, res) => {
+let onDisplayDataCrud = async (req, res) => {
   let data = await CRUDservice.getListUser();
   return res.render("getListUser.ejs", { dataTable: data });
 };
 
+let onRenderCrudEditPage = async (req, res) => {
+  let id = req.params.id;
+  if (!id || isNaN(id)) {
+    return res.send("page not found");
+  }
+  let userDetail = await CRUDservice.getDetailUser(id);
+  return res.render("editCrudPage.ejs", { user: userDetail });
+};
+
+let onUpdateCRUD = async (req, res) => {
+  await CRUDservice.updateUser(req.body);
+  return res.redirect("/");
+};
+
+let onDeleteCRUD = async (req, res) => {
+  let id = req.params.id;
+  if (!id || isNaN(id)) {
+    return res.send("page not found");
+  }
+  await CRUDservice.deleteUser(id);
+  return res.redirect("/");
+};
+
 module.exports = {
   getHomePage,
-  getCRUD,
-  postCRUD,
-  displayGetCRUD,
+  onRenderCrudListPage,
+  onAddNewCrud,
+  onDisplayDataCrud,
+  onRenderCrudEditPage,
+  onUpdateCRUD,
+  onDeleteCRUD,
 };

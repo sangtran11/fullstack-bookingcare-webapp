@@ -43,7 +43,59 @@ let getListUser = () => {
   });
 };
 
+let getDetailUser = (id) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let user = await db.User.findOne({ where: { id: id }, raw: true });
+      resolve(user);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let updateUser = (body) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.User.update(
+        {
+          email: body.email,
+          firstName: body.firstName,
+          lastName: body.lastName,
+          address: body.address,
+        },
+        {
+          where: {
+            id: body.id,
+          },
+        }
+      );
+      resolve("Ok! Successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let deleteUser = (userId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.User.destroy({
+        where: {
+          id: userId,
+        },
+      });
+      resolve("Ok! Successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   createNewUser,
   getListUser,
+  getDetailUser,
+  updateUser,
+  deleteUser,
 };
