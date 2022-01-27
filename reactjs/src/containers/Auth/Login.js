@@ -5,6 +5,7 @@ import { push } from "connected-react-router";
 import * as actions from "../../store/actions";
 import "./Login.scss";
 import { FormattedMessage } from "react-intl";
+import * as userService from "../../services/userService";
 
 class Login extends Component {
   constructor(props) {
@@ -13,6 +14,7 @@ class Login extends Component {
       username: "",
       password: "",
       isShowPassword: false,
+      errMessage: "",
     };
   }
 
@@ -28,7 +30,32 @@ class Login extends Component {
     }
   };
 
-  onHandleLogin = () => {};
+  onHandleLogin = async () => {
+    this.setState({
+      errMessage: "",
+    });
+    let payload = {
+      email: this.state.username,
+      password: this.state.password,
+    };
+    try {
+      let data = await userService.onHandleLogin(payload);
+      if (data && data.data && data.data.errCode) {
+        this.setState({
+          errMessage: data.data.msg,
+        });
+        return;
+      }
+      this.props.userLoginSuccess(data.data.userInfo);
+    } catch (error) {
+      if (error && error.response && error.response.data) {
+        this.setState({
+          errMessage: error.response.data.msg,
+        });
+      }
+      throw error;
+    }
+  };
 
   onHandleShowHidePassword = () => {
     this.setState({
@@ -74,6 +101,9 @@ class Login extends Component {
                 </span>
               </div>
             </div>
+            <div className="col-12" style={{ color: "red" }}>
+              {this.state.errMessage}
+            </div>
             <div className="col-12">
               <button
                 className="btn-login"
@@ -108,9 +138,9 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     navigate: (path) => dispatch(push(path)),
-    adminLoginSuccess: (adminInfo) =>
-      dispatch(actions.adminLoginSuccess(adminInfo)),
-    adminLoginFail: () => dispatch(actions.adminLoginFail()),
+    // userLoginFail: () => dispatch(actions.adminLoginFail()),
+    userLoginSuccess: (userInfo) =>
+      dispatch(actions.userLoginSuccess(userInfo)),
   };
 };
 
